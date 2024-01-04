@@ -2,21 +2,24 @@
 version 1.0400
 header_name {.h}
 code_name {.cxx}
-Function {make_window()} {open
+class UserInterface {open
 } {
-  Fl_Window {} {open selected
-    xywh {759 466 883 371} type Double visible
+  Function {make_window()} {open
   } {
-    Fl_Check_Browser {} {
-      xywh {0 0 745 370}
-    }
-    Fl_Check_Button {} {
-      label {是否包含文件名}
-      xywh {750 15 55 45} down_box DOWN_BOX
-    }
-    Fl_Button {} {
-      label {开始}
-      xywh {765 245 100 65}
+    Fl_Window w1 {open selected
+      xywh {543 454 883 368} type Double visible
+    } {
+      Fl_Check_Browser br {
+        xywh {0 0 745 370}
+      }
+      Fl_Check_Button b1 {
+        label {是否包含文件名}
+        xywh {750 15 55 45} down_box DOWN_BOX
+      }
+      Fl_Button b2 {
+        label {开始}
+        xywh {765 245 100 65}
+      }
     }
   }
 }
