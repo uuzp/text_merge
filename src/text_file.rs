@@ -1,6 +1,6 @@
 use std::{fs, path::{self, Path}};
 
-fn text_name_get(directory_path:&Path) -> Vec<String>   {
+pub(crate) fn text_name_get(directory_path:&Path) -> Vec<String>   {
 
      // 获取目录中的所有条目
      let entries = fs::read_dir(directory_path)
