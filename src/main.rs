@@ -1,5 +1,6 @@
 use fltk::{prelude::*, *};
 mod ui;
+mod text_file;
 
 fn main() {
     let app = app::App::default();
