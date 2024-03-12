@@ -1,2 +1,5 @@
 /target
+/build
+/dist
 .gitignore
+txt_merge.spec
