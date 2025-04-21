@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本文件合并工具</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" href="assets/images/logo.webp" type="image/webp">
+</head>
+<body>
+    <div class="container">
+        <h1>文本文件合并工具</h1>
+
+        <div class="input-section">
+            <label for="fileInput" class="button">选择 TXT 文件</label>
+            <input type="file" id="fileInput" multiple accept=".txt">
+            <span id="selectedDir">未选择文件</span>
+            <button id="clearAllButton" class="button clear-button">清除所有文件</button>
+        </div>
+
+        <div class="file-list-section">
+            <h2>待合并文件列表 (可拖拽排序)</h2>
+            <ul id="fileList">
+                <!-- 文件将在这里列出 -->
+            </ul>
+            <button id="deleteSelectedButton" class="button clear-button">删除选中文件</button>
+        </div>
+
+        <div class="merge-section">
+            <label for="mergedFileName">合并文件名:</label>
+            <input type="text" id="mergedFileName" value="merged_file">
+            <button id="mergeButton">合并并下载</button>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
