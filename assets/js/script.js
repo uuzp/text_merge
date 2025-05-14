@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const mergedFileNameInput = document.getElementById('mergedFileName');
     const mergeButton = document.getElementById('mergeButton');
     const clearAllButton = document.getElementById('clearAllButton');
-    const deleteSelectedButton = document.getElementById('deleteSelectedButton');
 
     let selectedFiles = []; // Array to store File objects
 
@@ -24,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear the file input value so selecting the same file(s) again triggers the change event
         event.target.value = '';
     });
-
+    
     // Display files in the list
     function displayFileList() {
         fileListUl.innerHTML = ''; // Clear current list
@@ -36,24 +35,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileInfoDiv = document.createElement('div');
             fileInfoDiv.classList.add('file-info');
 
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.classList.add('file-checkbox');
-            fileInfoDiv.appendChild(checkbox);
-
             const fileNameSpan = document.createElement('span');
             fileNameSpan.textContent = file.name;
             fileInfoDiv.appendChild(fileNameSpan);
 
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = '删除';
-            deleteButton.classList.add('delete-button');
-            deleteButton.addEventListener('click', () => {
+            // 添加右键点击删除功能
+            li.addEventListener('contextmenu', (e) => {
+                e.preventDefault(); // 阻止默认的右键菜单
                 deleteFileByIndex(index);
             });
 
             li.appendChild(fileInfoDiv);
-            li.appendChild(deleteButton);
             fileListUl.appendChild(li);
         });
         addDragDropListeners();
@@ -80,20 +72,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const srcIndex = Array.from(fileListUl.children).indexOf(this);
         e.dataTransfer.setData('text/plain', srcIndex);
         this.classList.add('dragging');
-    }
-
-    function handleDragOver(e) {
+    }    function handleDragOver(e) {
         e.preventDefault(); // Necessary to allow dropping
         e.dataTransfer.dropEffect = 'move';
         if (this !== dragSrcEl) {
-             this.classList.add('dragover');
+            this.classList.add('dragover');
         }
-    }
-
-     function handleDragLeave() {
+    }function handleDragLeave() {
         this.classList.remove('dragover');
     }
-
 
     function handleDrop(e) {
         e.stopPropagation(); // Prevent default action (opening as link for some browsers)
@@ -109,19 +96,16 @@ document.addEventListener('DOMContentLoaded', () => {
             // Re-render the list to reflect the new order
             displayFileList();
         }
-         this.classList.remove('dragover');
+        this.classList.remove('dragover');
         return false;
     }
 
     function handleDragEnd() {
         const listItems = fileListUl.querySelectorAll('li');
-        listItems.forEach(item => {
-            item.classList.remove('dragging');
-             item.classList.remove('dragover');
+        listItems.forEach(item => {            item.classList.remove('dragging');
+            item.classList.remove('dragover');
         });
-    }
-
-    // Update the selected file count display
+    }    // Update the selected file count display
     function updateSelectedFileInfo() {
         if (selectedFiles.length > 0) {
             selectedDirSpan.textContent = `已选择 ${selectedFiles.length} 个 TXT 文件`;
@@ -133,25 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle clear all button click
     clearAllButton.addEventListener('click', () => {
         selectedFiles = [];
-        displayFileList();
-        updateSelectedFileInfo();
-    });
-
-    // Handle delete selected button click
-    deleteSelectedButton.addEventListener('click', () => {
-        const checkboxes = fileListUl.querySelectorAll('.file-checkbox');
-        const filesToDeleteIndices = [];
-        checkboxes.forEach((checkbox, index) => {
-            if (checkbox.checked) {
-                filesToDeleteIndices.push(index);
-            }
-        });
-
-        // Remove files from selectedFiles array in reverse order to avoid index issues
-        for (let i = filesToDeleteIndices.length - 1; i >= 0; i--) {
-            selectedFiles.splice(filesToDeleteIndices[i], 1);
-        }
-
         displayFileList();
         updateSelectedFileInfo();
     });
@@ -171,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const mergedFileName = mergedFileNameInput.value.trim() || 'merged_file';
+        const mergedFileName = mergedFileNameInput.value.trim() || 'mango';
         let mergedContent = '';
         let chapterCount = 1;
 

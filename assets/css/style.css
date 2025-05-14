@@ -18,11 +18,26 @@ body {
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* More prominent shadow */
     width: 100%;
     max-width: 700px;
+    position: relative; /* 添加相对定位，用于 GitHub 按钮定位 */
 }
 
 h1, h2 {
-    text-align: center;
     color: #61afef; /* Accent color for headings */
+    margin: 0;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+.header-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 10px;
 }
 
 .input-section, .merge-section {
@@ -50,9 +65,9 @@ h1, h2 {
 }
 
 #selectedDir {
-    margin-left: 10px;
     font-style: italic;
     color: #abb2bf; /* Light text color */
+    margin-left: auto;
 }
 
 .file-list-section {
@@ -63,9 +78,11 @@ h1, h2 {
     list-style: none;
     padding: 0;
     border: 1px solid #5a606b; /* Darker border */
-    border-radius: 4px;
+    border-radius: 8px;
     max-height: 450px; /* Increased height */
     overflow-y: auto;
+    margin: 0;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2) inset;
 }
 
 #fileList li {
@@ -79,10 +96,20 @@ h1, h2 {
     display: flex; /* Use flexbox for layout */
     align-items: center; /* Vertically align items */
     justify-content: space-between; /* Space out content */
+    position: relative; /* 添加相对定位，用于右键提示 */
 }
 
 #fileList li:hover {
     background-color: #5a606b; /* Slightly lighter dark on hover */
+}
+
+#fileList li:hover::after {
+    content: '右键点击可删除';
+    position: absolute;
+    right: 10px;
+    font-size: 0.85em;
+    color: #e06c75;
+    opacity: 0.9;
 }
 
 #fileList li.dragging {
@@ -95,65 +122,130 @@ h1, h2 {
     align-items: center;
 }
 
-#fileList li input[type="checkbox"] {
-    margin-right: 10px;
-    cursor: pointer;
-}
-
-#fileList li .delete-button {
-    background-color: #e06c75; /* Red color for delete */
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 5px 10px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-left: 10px; /* Space from file name */
-}
-
-#fileList li .delete-button:hover {
-    background-color: #be5046; /* Darker red on hover */
-}
-
 .merge-section label {
     margin-right: 10px;
     color: #abb2bf; /* Light text color */
 }
 
-.merge-section input[type="text"] {
+#mergedFileName {
     padding: 8px;
     border: 1px solid #5a606b; /* Darker border */
     border-radius: 4px;
-    margin-right: 10px;
     background-color: #3a404a; /* Dark background */
     color: #abb2bf; /* Light text */
+    flex-grow: 1;
 }
 
-.merge-section button {
-    background-color: #98c379; /* Green color for merge */
-    color: #282c34; /* Dark text on button */
-    padding: 10px 15px;
+.icon-button {
+    background: none;
     border: none;
-    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.merge-section button:hover {
-    background-color: #82b366; /* Darker green on hover */
-}
-
-.clear-button {
-    background-color: #e06c75; /* Red color for clear */
-    color: white;
-    padding: 10px 15px;
-    border: none;
+    padding: 8px;
     border-radius: 5px;
-    cursor: pointer;
     transition: background-color 0.3s ease;
-    margin-left: 10px; /* Space from merge button */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.clear-button:hover {
-    background-color: #be5046; /* Darker red on hover */
+.icon-button svg {
+    fill: #61afef;
+    transition: fill 0.3s ease;
+}
+
+.icon-button:hover svg {
+    fill: #528fcc;
+}
+
+.file-icon svg {
+    fill: #61afef;
+}
+
+.file-icon:hover svg {
+    fill: #528fcc;
+}
+
+#clearAllButton svg {
+    fill: #e06c75;
+}
+
+#clearAllButton:hover svg {
+    fill: #be5046;
+}
+
+#mergeButton svg {
+    fill: #98c379;
+}
+
+#mergeButton:hover svg {
+    fill: #82b366;
+}
+
+.action-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 15px;
+    gap: 10px;
+}
+
+.filename-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.input-logo {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.action-section input[type="text"] {
+    flex-grow: 1;
+    margin: 0;
+    padding-right: 30px; /* 为logo留出空间 */
+}
+
+.github-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    z-index: 10;
+    border-radius: 50%;
+    padding: 5px;
+    background-color: transparent;
+}
+
+.github-button svg {
+    fill: #61afef;
+    transition: fill 0.3s ease;
+}
+
+.github-button:hover {
+    transform: scale(1.1);
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.github-button:hover svg {
+    fill: #ffffff;
+}
+
+@media (max-width: 600px) {
+    .github-button {
+        top: 10px;
+        right: 10px;
+    }
+    
+    .github-button svg {
+        height: 24px;
+        width: 24px;
+    }
 }
