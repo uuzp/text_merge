@@ -4,11 +4,138 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileListUl = document.getElementById('fileList');
     const mergedFileNameInput = document.getElementById('mergedFileName');
     const mergeButton = document.getElementById('mergeButton');
-    const clearAllButton = document.getElementById('clearAllButton');
+    const clearAllButton = document.getElementById('clearAllButton');    let selectedFiles = []; // Array to store File objects
 
-    let selectedFiles = []; // Array to store File objects
-    let longPressTimer = null; // 用于长按计时
-    let isTouchMove = false; // 判断是否触摸移动
+    // 移动端变量
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let touchItem = null;
+    let touchItemIndex = -1;
+    let isTouchMoving = false;
+    let currentTouch = null;
+    let touchStartTime = 0;
+
+    // 震动反馈函数
+    function vibrate() {
+        if (navigator.vibrate) {
+            navigator.vibrate(50); // 震动50毫秒
+        }
+    }
+
+    // Function to delete a single file by its current index in the displayed list
+    function deleteFileByIndex(index) {
+        selectedFiles.splice(index, 1);
+        displayFileList();
+        updateSelectedFileInfo();
+    }
+
+    // Update the selected file count display
+    function updateSelectedFileInfo() {
+        if (selectedFiles.length > 0) {
+            selectedDirSpan.textContent = `已选择 ${selectedFiles.length} 个 TXT 文件`;
+        } else {
+            selectedDirSpan.textContent = '未选择文件';
+        }
+    }
+
+    // 移动端触摸开始事件
+    function handleTouchStart(e) {
+        const touch = e.touches[0];
+        const target = e.currentTarget;
+        touchStartTime = Date.now();
+        touchStartY = touch.clientY;
+        touchStartX = touch.clientX;
+        touchItem = target;
+        touchItemIndex = Array.from(fileListUl.children).indexOf(target);
+        isTouchMoving = false;
+        currentTouch = touch;
+
+        // 记录上次点击时间，用于检测双击
+        const now = Date.now();
+        const lastTap = target.dataset.lastTap ? parseInt(target.dataset.lastTap) : 0;
+        const timeDiff = now - lastTap;
+
+        // 如果是双击（时间间隔小于300ms），则删除文件
+        if (timeDiff < 300 && timeDiff > 0) {
+            e.preventDefault();
+            const index = parseInt(target.dataset.index);
+            deleteFileByIndex(index);
+            vibrate();
+            target.dataset.lastTap = 0; // 重置，避免连续多次触发
+        } else {
+            target.dataset.lastTap = now;
+        }
+    }
+
+    // 移动端触摸移动事件
+    function handleTouchMove(e) {
+        if (!touchItem) return;
+        
+        const touch = e.touches[0];
+        const moveY = touch.clientY - touchStartY;
+        
+        // 判断是否为拖动意图（垂直移动超过10像素）
+        if (Math.abs(moveY) > 10) {
+            isTouchMoving = true;
+            e.preventDefault(); // 防止页面滚动
+            
+            // 添加拖动样式
+            touchItem.classList.add('touch-dragging');
+            
+            // 查找目标位置
+            const items = Array.from(fileListUl.children);
+            const itemHeight = touchItem.offsetHeight;
+            const touchY = touch.clientY;
+            
+            // 计算当前触摸位置在哪个元素上方
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (item === touchItem) continue;
+                
+                const rect = item.getBoundingClientRect();
+                const itemMiddle = rect.top + rect.height / 2;
+                
+                // 如果触摸点在某个项目的中间线之上或之下
+                if ((i < touchItemIndex && touchY < itemMiddle) || 
+                    (i > touchItemIndex && touchY > itemMiddle)) {
+                    item.classList.add('touch-over');
+                } else {
+                    item.classList.remove('touch-over');
+                }
+            }
+        }
+    }
+
+    // 移动端触摸结束事件
+    function handleTouchEnd(e) {
+        if (!touchItem) return;
+        
+        const items = Array.from(fileListUl.children);
+        
+        // 如果是拖拽动作，则重排列表
+        if (isTouchMoving) {
+            const touchOverItem = fileListUl.querySelector('.touch-over');
+            
+            if (touchOverItem) {
+                const targetIndex = items.indexOf(touchOverItem);
+                const [movedItem] = selectedFiles.splice(touchItemIndex, 1);
+                selectedFiles.splice(targetIndex, 0, movedItem);
+                displayFileList();
+            }
+        }
+        
+        // 清除所有样式类
+        items.forEach(item => {
+            item.classList.remove('touch-dragging');
+            item.classList.remove('touch-over');
+        });
+        
+        // 重置变量
+        touchItem = null;
+        touchItemIndex = -1;
+        isTouchMoving = false;
+        currentTouch = null;
+    }
 
     // Handle file selection
     fileInput.addEventListener('change', (event) => {
@@ -46,45 +173,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.preventDefault(); // 阻止默认的右键菜单
                 deleteFileByIndex(index);
             });
-
-            // 添加长按删除功能（适配移动端）
-            li.addEventListener('touchstart', (e) => {
-                isTouchMove = false;
-                longPressTimer = setTimeout(() => {
-                    if (!isTouchMove) {
-                        deleteFileByIndex(index);
-                        vibrate(); // 触发震动反馈
-                    }
-                }, 800); // 800毫秒长按时间
+            
+            // 添加双击删除功能（桌面端）
+            li.addEventListener('dblclick', () => {
+                deleteFileByIndex(index);
+                vibrate(); // 触发震动反馈（移动端）
             });
 
-            li.addEventListener('touchmove', () => {
-                isTouchMove = true;
-                clearTimeout(longPressTimer);
-            });
-
-            li.addEventListener('touchend', () => {
-                clearTimeout(longPressTimer);
-            });
+            // 移动端触摸事件 - 用于双击和拖拽
+            li.addEventListener('touchstart', handleTouchStart);
+            li.addEventListener('touchmove', handleTouchMove);
+            li.addEventListener('touchend', handleTouchEnd);
 
             li.appendChild(fileInfoDiv);
             fileListUl.appendChild(li);
         });
         addDragDropListeners();
-    }
-
-    // 震动反馈函数
-    function vibrate() {
-        if (navigator.vibrate) {
-            navigator.vibrate(50); // 震动50毫秒
-        }
-    }
-
-    // Function to delete a single file by its current index in the displayed list
-    function deleteFileByIndex(index) {
-        selectedFiles.splice(index, 1);
-        displayFileList();
-        updateSelectedFileInfo();
     }
 
     // Add drag and drop listeners to list items
@@ -141,16 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         listItems.forEach(item => {            item.classList.remove('dragging');
             item.classList.remove('dragover');
         });
-    }    // Update the selected file count display
-    function updateSelectedFileInfo() {
-        if (selectedFiles.length > 0) {
-            selectedDirSpan.textContent = `已选择 ${selectedFiles.length} 个 TXT 文件`;
-        } else {
-            selectedDirSpan.textContent = '未选择文件';
-        }
-    }
-
-    // Handle clear all button click
+    }    // Handle clear all button click
     clearAllButton.addEventListener('click', () => {
         selectedFiles = [];
         displayFileList();

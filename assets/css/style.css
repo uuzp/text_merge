@@ -105,6 +105,28 @@ h1 {
     opacity: 0.8; /* 长按时透明度变化 */
 }
 
+/* 移动端拖拽样式 */
+#fileList li.touch-dragging {
+    opacity: 0.6;
+    background-color: #5a6273;
+    transform: scale(1.02);
+    z-index: 10;
+}
+
+#fileList li.touch-over {
+    border-top: 2px solid #61afef;
+}
+
+/* 拖拽样式 */
+#fileList li.dragging {
+    background-color: #5a6273;
+    opacity: 0.7;
+}
+
+#fileList li.dragover {
+    border-top: 2px solid #61afef;
+}
+
 /* 添加提示文本 */
 .mobile-tip {
     font-size: 0.8em;
