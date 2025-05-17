@@ -97,6 +97,28 @@ h1 {
     align-items: center; /* Vertically align items */
     justify-content: space-between; /* Space out content */
     position: relative; /* 添加相对定位，用于右键提示 */
+    touch-action: none; /* 阻止浏览器的默认触摸行为 */
+}
+
+#fileList li:active {
+    background-color: #606880; /* 长按时背景色变化 */
+    opacity: 0.8; /* 长按时透明度变化 */
+}
+
+/* 添加提示文本 */
+.mobile-tip {
+    font-size: 0.8em;
+    color: #8b939e;
+    text-align: center;
+    margin-top: 10px;
+    display: none; /* 默认隐藏 */
+}
+
+/* 仅在移动设备上显示 */
+@media (max-width: 768px) {
+    .mobile-tip {
+        display: block;
+    }
 }
 
 #fileList li:hover {

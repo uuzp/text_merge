@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearAllButton = document.getElementById('clearAllButton');
 
     let selectedFiles = []; // Array to store File objects
+    let longPressTimer = null; // 用于长按计时
+    let isTouchMove = false; // 判断是否触摸移动
 
     // Handle file selection
     fileInput.addEventListener('change', (event) => {
@@ -45,10 +47,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 deleteFileByIndex(index);
             });
 
+            // 添加长按删除功能（适配移动端）
+            li.addEventListener('touchstart', (e) => {
+                isTouchMove = false;
+                longPressTimer = setTimeout(() => {
+                    if (!isTouchMove) {
+                        deleteFileByIndex(index);
+                        vibrate(); // 触发震动反馈
+                    }
+                }, 800); // 800毫秒长按时间
+            });
+
+            li.addEventListener('touchmove', () => {
+                isTouchMove = true;
+                clearTimeout(longPressTimer);
+            });
+
+            li.addEventListener('touchend', () => {
+                clearTimeout(longPressTimer);
+            });
+
             li.appendChild(fileInfoDiv);
             fileListUl.appendChild(li);
         });
         addDragDropListeners();
+    }
+
+    // 震动反馈函数
+    function vibrate() {
+        if (navigator.vibrate) {
+            navigator.vibrate(50); // 震动50毫秒
+        }
+    }
+
+    // Function to delete a single file by its current index in the displayed list
+    function deleteFileByIndex(index) {
+        selectedFiles.splice(index, 1);
+        displayFileList();
+        updateSelectedFileInfo();
     }
 
     // Add drag and drop listeners to list items
@@ -120,14 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
         displayFileList();
         updateSelectedFileInfo();
     });
-
-    // Function to delete a single file by its current index in the displayed list
-    function deleteFileByIndex(index) {
-        selectedFiles.splice(index, 1);
-        displayFileList();
-        updateSelectedFileInfo();
-    }
-
 
     // Handle merge button click
     mergeButton.addEventListener('click', async () => {

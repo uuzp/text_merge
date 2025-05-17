@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文本文件合并工具</title>
+    <title>text_merge</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml">
+    <!-- iOS 设备特殊图标标志 -->
+    <link rel="apple-touch-icon" href="assets/images/logo.svg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="text_merge">
 </head>
 <body>
     <div class="container">
@@ -20,6 +25,7 @@
             <ul id="fileList">
                 <!-- 文件将在这里列出 -->
             </ul>
+            <p class="mobile-tip">长按文件可删除</p>
         </div>
         <div class="action-section">            <button id="clearAllButton" class="icon-button" title="清除所有文件">
                 <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" height="24px" width="24px"><defs><style>.cls-1{fill:none;}</style></defs><title>清除所有文件</title><g data-name="Layer 2" id="Layer_2"><path d="M20,29H12a5,5,0,0,1-5-5V12a1,1,0,0,1,2,0V24a3,3,0,0,0,3,3h8a3,3,0,0,0,3-3V12a1,1,0,0,1,2,0V24A5,5,0,0,1,20,29Z"/><path d="M26,9H6A1,1,0,0,1,6,7H26a1,1,0,0,1,0,2Z"/><path d="M20,9H12a1,1,0,0,1-1-1V6a3,3,0,0,1,3-3h4a3,3,0,0,1,3,3V8A1,1,0,0,1,20,9ZM13,7h6V6a1,1,0,0,0-1-1H14a1,1,0,0,0-1,1Z"/><path d="M14,23a1,1,0,0,1-1-1V15a1,1,0,0,1,2,0v7A1,1,0,0,1,14,23Z"/><path d="M18,23a1,1,0,0,1-1-1V15a1,1,0,0,1,2,0v7A1,1,0,0,1,18,23Z"/></g></svg>
