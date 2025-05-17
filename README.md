@@ -36,7 +36,7 @@
     *   `js/`: 存放 JavaScript 文件。
         *   `script.js`: 工具的核心逻辑。
     *   `images/`: 存放图片资源。
-        *   `logo.svg`: 网站图标。
+        *   `logo.png`: 网站图标。
         *   `screenshot.png`: README中使用的截图。
 
 这个工具完全基于浏览器端技术实现，因此非常轻便且易于使用。

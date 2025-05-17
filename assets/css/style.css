@@ -98,6 +98,10 @@ h1 {
     justify-content: space-between; /* Space out content */
     position: relative; /* 添加相对定位，用于右键提示 */
     touch-action: none; /* 阻止浏览器的默认触摸行为 */
+    -webkit-tap-highlight-color: transparent; /* 移除iOS点击高亮 */
+    user-select: none; /* 防止文本选择 */
+    -webkit-user-select: none;
+    -webkit-touch-callout: none; /* 防止iOS显示复制等菜单 */
 }
 
 #fileList li:active {

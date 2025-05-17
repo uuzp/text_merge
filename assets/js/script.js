@@ -36,9 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             selectedDirSpan.textContent = '未选择文件';
         }
-    }
-
-    // 移动端触摸开始事件
+    }    // 移动端触摸开始事件
     function handleTouchStart(e) {
         const touch = e.touches[0];
         const target = e.currentTarget;
@@ -49,6 +47,15 @@ document.addEventListener('DOMContentLoaded', () => {
         touchItemIndex = Array.from(fileListUl.children).indexOf(target);
         isTouchMoving = false;
         currentTouch = touch;
+        
+        // 禁止点击链接的默认行为
+        target.addEventListener('click', function clickHandler(event) {
+            if (isTouchMoving) {
+                event.preventDefault();
+                event.stopPropagation();
+                target.removeEventListener('click', clickHandler);
+            }
+        }, { once: true });
 
         // 记录上次点击时间，用于检测双击
         const now = Date.now();
@@ -58,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 如果是双击（时间间隔小于300ms），则删除文件
         if (timeDiff < 300 && timeDiff > 0) {
             e.preventDefault();
+            e.stopPropagation();
             const index = parseInt(target.dataset.index);
             deleteFileByIndex(index);
             vibrate();
@@ -65,19 +73,21 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             target.dataset.lastTap = now;
         }
-    }
-
-    // 移动端触摸移动事件
+    }    // 移动端触摸移动事件
     function handleTouchMove(e) {
         if (!touchItem) return;
         
+        // 始终阻止默认行为，防止导航
+        e.preventDefault(); 
+        e.stopPropagation();
+        
         const touch = e.touches[0];
         const moveY = touch.clientY - touchStartY;
+        const moveX = touch.clientX - touchStartX;
         
-        // 判断是否为拖动意图（垂直移动超过10像素）
-        if (Math.abs(moveY) > 10) {
+        // 判断是否为拖动意图（移动超过10像素）
+        if (Math.abs(moveY) > 10 || Math.abs(moveX) > 10) {
             isTouchMoving = true;
-            e.preventDefault(); // 防止页面滚动
             
             // 添加拖动样式
             touchItem.classList.add('touch-dragging');
@@ -104,16 +114,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-    }
-
-    // 移动端触摸结束事件
+    }    // 移动端触摸结束事件
     function handleTouchEnd(e) {
         if (!touchItem) return;
         
-        const items = Array.from(fileListUl.children);
-        
-        // 如果是拖拽动作，则重排列表
+        // 如果是拖拽动作，阻止默认行为（防止点击导航）
         if (isTouchMoving) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const items = Array.from(fileListUl.children);
             const touchOverItem = fileListUl.querySelector('.touch-over');
             
             if (touchOverItem) {
@@ -122,13 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedFiles.splice(targetIndex, 0, movedItem);
                 displayFileList();
             }
+            
+            // 清除所有样式类
+            items.forEach(item => {
+                item.classList.remove('touch-dragging');
+                item.classList.remove('touch-over');
+            });
         }
-        
-        // 清除所有样式类
-        items.forEach(item => {
-            item.classList.remove('touch-dragging');
-            item.classList.remove('touch-over');
-        });
         
         // 重置变量
         touchItem = null;
@@ -152,14 +162,22 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear the file input value so selecting the same file(s) again triggers the change event
         event.target.value = '';
     });
-    
-    // Display files in the list
+      // Display files in the list
     function displayFileList() {
         fileListUl.innerHTML = ''; // Clear current list
         selectedFiles.forEach((file, index) => {
             const li = document.createElement('li');
             li.setAttribute('draggable', true);
             li.dataset.index = index;
+            li.style.userSelect = 'none'; // 防止文本选择
+            li.setAttribute('role', 'listitem'); // 设置正确的ARIA角色
+            
+            // 确保不会被当作链接处理
+            li.onclick = function(e) { 
+                // 只处理普通点击，不处理拖动后的点击
+                if (!isTouchMoving) return;
+                e.preventDefault();
+            };
 
             const fileInfoDiv = document.createElement('div');
             fileInfoDiv.classList.add('file-info');

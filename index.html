@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
+<head>    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>text_merge</title>
-    <link rel="stylesheet" href="assets/css/style.css">    <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="assets/css/style.css">    <link rel="icon" href="assets/images/logo.png" type="image/png">
     <!-- iOS 设备特殊图标标志 -->
-    <link rel="apple-touch-icon" href="assets/images/logo.svg">
+    <link rel="apple-touch-icon" href="assets/images/logo.png" sizes="180x180">
+    <link rel="apple-touch-icon-precomposed" href="assets/images/logo.png" sizes="180x180">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -28,10 +28,9 @@
         </div>
         <div class="action-section">            <button id="clearAllButton" class="icon-button" title="清除所有文件">
                 <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" height="24px" width="24px"><defs><style>.cls-1{fill:none;}</style></defs><title>清除所有文件</title><g data-name="Layer 2" id="Layer_2"><path d="M20,29H12a5,5,0,0,1-5-5V12a1,1,0,0,1,2,0V24a3,3,0,0,0,3,3h8a3,3,0,0,0,3-3V12a1,1,0,0,1,2,0V24A5,5,0,0,1,20,29Z"/><path d="M26,9H6A1,1,0,0,1,6,7H26a1,1,0,0,1,0,2Z"/><path d="M20,9H12a1,1,0,0,1-1-1V6a3,3,0,0,1,3-3h4a3,3,0,0,1,3,3V8A1,1,0,0,1,20,9ZM13,7h6V6a1,1,0,0,0-1-1H14a1,1,0,0,0-1,1Z"/><path d="M14,23a1,1,0,0,1-1-1V15a1,1,0,0,1,2,0v7A1,1,0,0,1,14,23Z"/><path d="M18,23a1,1,0,0,1-1-1V15a1,1,0,0,1,2,0v7A1,1,0,0,1,18,23Z"/></g></svg>
-            </button>
-            <div class="filename-container">
+            </button>            <div class="filename-container">
                 <input type="text" id="mergedFileName" value="mango" placeholder="文件名">
-                <img src="assets/images/logo.svg" alt="Logo" class="input-logo" width="20" height="20">
+                <img src="assets/images/logo.png" alt="Logo" class="input-logo" width="20" height="20">
             </div>
             <label for="fileInput" class="icon-button file-icon" title="选择 TXT 文件">
                 <svg enable-background="new 0 0 48 48" height="28px" id="Layer_1" version="1.1" viewBox="0 0 48 48" width="28px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path clip-rule="evenodd" d="M37,47H11c-2.209,0-4-1.791-4-4V5c0-2.209,1.791-4,4-4h18.973  c0.002,0,0.005,0,0.007,0h0.02H30c0.32,0,0.593,0.161,0.776,0.395l9.829,9.829C40.84,11.407,41,11.68,41,12l0,0v0.021  c0,0.002,0,0.003,0,0.005V43C41,45.209,39.209,47,37,47z M31,4.381V11h6.619L31,4.381z M39,13h-9c-0.553,0-1-0.448-1-1V3H11  C9.896,3,9,3.896,9,5v38c0,1.104,0.896,2,2,2h26c1.104,0,2-0.896,2-2V13z M33,39H15c-0.553,0-1-0.447-1-1c0-0.552,0.447-1,1-1h18  c0.553,0,1,0.448,1,1C34,38.553,33.553,39,33,39z M33,31H15c-0.553,0-1-0.447-1-1c0-0.552,0.447-1,1-1h18c0.553,0,1,0.448,1,1  C34,30.553,33.553,31,33,31z M33,23H15c-0.553,0-1-0.447-1-1c0-0.552,0.447-1,1-1h18c0.553,0,1,0.448,1,1C34,22.553,33.553,23,33,23  z" fill-rule="evenodd"/></svg>
