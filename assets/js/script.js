@@ -1,302 +1,284 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const fileInput = document.getElementById('fileInput');
-    const selectedDirSpan = document.getElementById('selectedDir');
-    const fileListUl = document.getElementById('fileList');
-    const mergedFileNameInput = document.getElementById('mergedFileName');
-    const mergeButton = document.getElementById('mergeButton');
-    const clearAllButton = document.getElementById('clearAllButton');    let selectedFiles = []; // Array to store File objects
+    const $id = (id) => document.getElementById(id);
 
-    // 移动端变量
-    let touchStartY = 0;
-    let touchStartX = 0;
-    let touchItem = null;
-    let touchItemIndex = -1;
-    let isTouchMoving = false;
-    let currentTouch = null;
-    let touchStartTime = 0;
+    const fileInput = $id('fileInput');
+    const selectedDirSpan = $id('selectedDir');
+    const fileListUl = $id('fileList');
+    const mergedFileNameInput = $id('mergedFileName');
+    const mergeButton = $id('mergeButton');
+    const clearAllButton = $id('clearAllButton');
 
-    // 震动反馈函数
-    function vibrate() {
-        if (navigator.vibrate) {
-            navigator.vibrate(50); // 震动50毫秒
-        }
-    }
+    let selectedFiles = [];
 
-    // Function to delete a single file by its current index in the displayed list
-    function deleteFileByIndex(index) {
-        selectedFiles.splice(index, 1);
-        displayFileList();
-        updateSelectedFileInfo();
-    }
+    const vibrate = (ms = 50) => {
+        if (navigator.vibrate) navigator.vibrate(ms);
+    };
 
-    // Update the selected file count display
+    const isTxtFile = (file) => file && typeof file.name === 'string' && file.name.toLowerCase().endsWith('.txt');
+
     function updateSelectedFileInfo() {
-        if (selectedFiles.length > 0) {
-            selectedDirSpan.textContent = `已选择 ${selectedFiles.length} 个 TXT 文件`;
-        } else {
-            selectedDirSpan.textContent = '未选择文件';
-        }
-    }    // 移动端触摸开始事件
-    function handleTouchStart(e) {
-        const touch = e.touches[0];
-        const target = e.currentTarget;
-        touchStartTime = Date.now();
-        touchStartY = touch.clientY;
-        touchStartX = touch.clientX;
-        touchItem = target;
-        touchItemIndex = Array.from(fileListUl.children).indexOf(target);
-        isTouchMoving = false;
-        currentTouch = touch;
-        
-        // 禁止点击链接的默认行为
-        target.addEventListener('click', function clickHandler(event) {
-            if (isTouchMoving) {
-                event.preventDefault();
-                event.stopPropagation();
-                target.removeEventListener('click', clickHandler);
-            }
-        }, { once: true });
-
-        // 记录上次点击时间，用于检测双击
-        const now = Date.now();
-        const lastTap = target.dataset.lastTap ? parseInt(target.dataset.lastTap) : 0;
-        const timeDiff = now - lastTap;
-
-        // 如果是双击（时间间隔小于300ms），则删除文件
-        if (timeDiff < 300 && timeDiff > 0) {
-            e.preventDefault();
-            e.stopPropagation();
-            const index = parseInt(target.dataset.index);
-            deleteFileByIndex(index);
-            vibrate();
-            target.dataset.lastTap = 0; // 重置，避免连续多次触发
-        } else {
-            target.dataset.lastTap = now;
-        }
-    }    // 移动端触摸移动事件
-    function handleTouchMove(e) {
-        if (!touchItem) return;
-        
-        // 始终阻止默认行为，防止导航
-        e.preventDefault(); 
-        e.stopPropagation();
-        
-        const touch = e.touches[0];
-        const moveY = touch.clientY - touchStartY;
-        const moveX = touch.clientX - touchStartX;
-        
-        // 判断是否为拖动意图（移动超过10像素）
-        if (Math.abs(moveY) > 10 || Math.abs(moveX) > 10) {
-            isTouchMoving = true;
-            
-            // 添加拖动样式
-            touchItem.classList.add('touch-dragging');
-            
-            // 查找目标位置
-            const items = Array.from(fileListUl.children);
-            const itemHeight = touchItem.offsetHeight;
-            const touchY = touch.clientY;
-            
-            // 计算当前触摸位置在哪个元素上方
-            for (let i = 0; i < items.length; i++) {
-                const item = items[i];
-                if (item === touchItem) continue;
-                
-                const rect = item.getBoundingClientRect();
-                const itemMiddle = rect.top + rect.height / 2;
-                
-                // 如果触摸点在某个项目的中间线之上或之下
-                if ((i < touchItemIndex && touchY < itemMiddle) || 
-                    (i > touchItemIndex && touchY > itemMiddle)) {
-                    item.classList.add('touch-over');
-                } else {
-                    item.classList.remove('touch-over');
-                }
-            }
-        }
-    }    // 移动端触摸结束事件
-    function handleTouchEnd(e) {
-        if (!touchItem) return;
-        
-        // 如果是拖拽动作，阻止默认行为（防止点击导航）
-        if (isTouchMoving) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const items = Array.from(fileListUl.children);
-            const touchOverItem = fileListUl.querySelector('.touch-over');
-            
-            if (touchOverItem) {
-                const targetIndex = items.indexOf(touchOverItem);
-                const [movedItem] = selectedFiles.splice(touchItemIndex, 1);
-                selectedFiles.splice(targetIndex, 0, movedItem);
-                displayFileList();
-            }
-            
-            // 清除所有样式类
-            items.forEach(item => {
-                item.classList.remove('touch-dragging');
-                item.classList.remove('touch-over');
-            });
-        }
-        
-        // 重置变量
-        touchItem = null;
-        touchItemIndex = -1;
-        isTouchMoving = false;
-        currentTouch = null;
+        selectedDirSpan.textContent = selectedFiles.length > 0
+            ? `已选择 ${selectedFiles.length} 个 TXT 文件`
+            : '未选择文件';
     }
 
-    // Handle file selection
-    fileInput.addEventListener('change', (event) => {
-        // Add newly selected files to the existing list, filtering duplicates by name
-        const newFiles = Array.from(event.target.files).filter(file => file.name.endsWith('.txt'));
-        newFiles.forEach(newFile => {
-            if (!selectedFiles.some(existingFile => existingFile.name === newFile.name)) {
-                selectedFiles.push(newFile);
-            }
-        });
-
-        displayFileList();
+    function deleteFileByIndex(index) {
+        if (!Number.isInteger(index) || index < 0 || index >= selectedFiles.length) return;
+        selectedFiles.splice(index, 1);
+        renderFileList();
         updateSelectedFileInfo();
-        // Clear the file input value so selecting the same file(s) again triggers the change event
-        event.target.value = '';
-    });
-      // Display files in the list
-    function displayFileList() {
-        fileListUl.innerHTML = ''; // Clear current list
+    }
+
+    function sanitizeFileName(name) {
+        const trimmed = (name ?? '').trim();
+        const fallback = 'mango';
+        const safe = (trimmed || fallback).replace(/[\\/:*?"<>|]+/g, '_');
+        return safe || fallback;
+    }
+
+    async function readFileText(file) {
+        if (typeof file.text === 'function') return await file.text();
+        return await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (event) => resolve(event.target.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsText(file, 'utf-8');
+        });
+    }
+
+    function renderFileList() {
+        fileListUl.innerHTML = '';
         selectedFiles.forEach((file, index) => {
             const li = document.createElement('li');
-            li.setAttribute('draggable', true);
-            li.dataset.index = index;
-            li.style.userSelect = 'none'; // 防止文本选择
-            li.setAttribute('role', 'listitem'); // 设置正确的ARIA角色
-            
-            // 确保不会被当作链接处理
-            li.onclick = function(e) { 
-                // 只处理普通点击，不处理拖动后的点击
-                if (!isTouchMoving) return;
-                e.preventDefault();
-            };
+            li.draggable = true;
+            li.dataset.index = String(index);
+            li.setAttribute('role', 'listitem');
 
             const fileInfoDiv = document.createElement('div');
-            fileInfoDiv.classList.add('file-info');
+            fileInfoDiv.className = 'file-info';
 
             const fileNameSpan = document.createElement('span');
             fileNameSpan.textContent = file.name;
             fileInfoDiv.appendChild(fileNameSpan);
 
-            // 添加右键点击删除功能
-            li.addEventListener('contextmenu', (e) => {
-                e.preventDefault(); // 阻止默认的右键菜单
-                deleteFileByIndex(index);
-            });
-            
-            // 添加双击删除功能（桌面端）
-            li.addEventListener('dblclick', () => {
-                deleteFileByIndex(index);
-                vibrate(); // 触发震动反馈（移动端）
-            });
-
-            // 移动端触摸事件 - 用于双击和拖拽
-            li.addEventListener('touchstart', handleTouchStart);
-            li.addEventListener('touchmove', handleTouchMove);
-            li.addEventListener('touchend', handleTouchEnd);
-
             li.appendChild(fileInfoDiv);
             fileListUl.appendChild(li);
         });
-        addDragDropListeners();
     }
 
-    // Add drag and drop listeners to list items
-    function addDragDropListeners() {
-        const listItems = fileListUl.querySelectorAll('li');
-        listItems.forEach(item => {
-            item.addEventListener('dragstart', handleDragStart);
-            item.addEventListener('dragover', handleDragOver);
-            item.addEventListener('dragleave', handleDragLeave);
-            item.addEventListener('drop', handleDrop);
-            item.addEventListener('dragend', handleDragEnd);
-        });
+    function reorderFiles(srcIndex, targetIndex) {
+        if (!Number.isInteger(srcIndex) || !Number.isInteger(targetIndex)) return;
+        if (srcIndex === targetIndex) return;
+        if (srcIndex < 0 || targetIndex < 0) return;
+        if (srcIndex >= selectedFiles.length || targetIndex >= selectedFiles.length) return;
+
+        const [moved] = selectedFiles.splice(srcIndex, 1);
+        selectedFiles.splice(targetIndex, 0, moved);
+        renderFileList();
     }
 
-    let dragSrcEl = null;
-
-    function handleDragStart(e) {
-        dragSrcEl = this;
-        e.dataTransfer.effectAllowed = 'move';
-        // Store the index of the dragged item in the original selectedFiles array
-        const srcIndex = Array.from(fileListUl.children).indexOf(this);
-        e.dataTransfer.setData('text/plain', srcIndex);
-        this.classList.add('dragging');
-    }    function handleDragOver(e) {
-        e.preventDefault(); // Necessary to allow dropping
-        e.dataTransfer.dropEffect = 'move';
-        if (this !== dragSrcEl) {
-            this.classList.add('dragover');
+    // 文件选择：追加 + 去重（按文件名）
+    fileInput.addEventListener('change', (event) => {
+        const incoming = Array.from(event.target.files).filter(isTxtFile);
+        for (const file of incoming) {
+            if (!selectedFiles.some((f) => f.name === file.name)) selectedFiles.push(file);
         }
-    }function handleDragLeave() {
-        this.classList.remove('dragover');
-    }
 
-    function handleDrop(e) {
-        e.stopPropagation(); // Prevent default action (opening as link for some browsers)
+        renderFileList();
+        updateSelectedFileInfo();
+        event.target.value = '';
+    });
 
-        if (dragSrcEl !== this) {
-            const srcIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
-            const targetIndex = Array.from(fileListUl.children).indexOf(this);
+    // 删除：右键 / 双击（事件委托，避免重复绑定）
+    fileListUl.addEventListener('contextmenu', (event) => {
+        const li = event.target.closest('li');
+        if (!li || !fileListUl.contains(li)) return;
+        event.preventDefault();
+        deleteFileByIndex(Number(li.dataset.index));
+    });
 
-            // Reorder the selectedFiles array based on the original index
-            const [draggedItem] = selectedFiles.splice(srcIndex, 1);
-            selectedFiles.splice(targetIndex, 0, draggedItem);
+    fileListUl.addEventListener('dblclick', (event) => {
+        const li = event.target.closest('li');
+        if (!li || !fileListUl.contains(li)) return;
+        deleteFileByIndex(Number(li.dataset.index));
+        vibrate();
+    });
 
-            // Re-render the list to reflect the new order
-            displayFileList();
+    // 桌面端拖拽排序（事件委托）
+    fileListUl.addEventListener('dragstart', (event) => {
+        const li = event.target.closest('li');
+        if (!li || !fileListUl.contains(li)) return;
+        const srcIndex = Number(li.dataset.index);
+        if (!Number.isInteger(srcIndex)) return;
+
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', String(srcIndex));
+        li.classList.add('dragging');
+    });
+
+    fileListUl.addEventListener('dragover', (event) => {
+        const li = event.target.closest('li');
+        if (!li || !fileListUl.contains(li)) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+        li.classList.add('dragover');
+    });
+
+    fileListUl.addEventListener('dragleave', (event) => {
+        const li = event.target.closest('li');
+        if (!li || !fileListUl.contains(li)) return;
+        li.classList.remove('dragover');
+    });
+
+    fileListUl.addEventListener('drop', (event) => {
+        const li = event.target.closest('li');
+        if (!li || !fileListUl.contains(li)) return;
+        event.preventDefault();
+
+        const srcIndex = Number(event.dataTransfer.getData('text/plain'));
+        const targetIndex = Number(li.dataset.index);
+
+        if (Number.isInteger(srcIndex) && Number.isInteger(targetIndex)) {
+            reorderFiles(srcIndex, targetIndex);
         }
-        this.classList.remove('dragover');
-        return false;
-    }
 
-    function handleDragEnd() {
-        const listItems = fileListUl.querySelectorAll('li');
-        listItems.forEach(item => {            item.classList.remove('dragging');
+        li.classList.remove('dragover');
+    });
+
+    fileListUl.addEventListener('dragend', () => {
+        fileListUl.querySelectorAll('li').forEach((item) => {
+            item.classList.remove('dragging');
             item.classList.remove('dragover');
         });
-    }    // Handle clear all button click
+    });
+
+    // 移动端：双击删除 + 拖动排序（事件委托）
+    const touchState = {
+        startX: 0,
+        startY: 0,
+        moving: false,
+        item: null,
+        startIndex: -1,
+        overIndex: -1,
+    };
+
+    function clearTouchHints() {
+        fileListUl.querySelectorAll('.touch-over').forEach((el) => el.classList.remove('touch-over'));
+        if (touchState.item) touchState.item.classList.remove('touch-dragging');
+    }
+
+    fileListUl.addEventListener('touchstart', (event) => {
+        const li = event.target.closest('li');
+        if (!li || !fileListUl.contains(li)) return;
+
+        const touch = event.touches[0];
+        touchState.startX = touch.clientX;
+        touchState.startY = touch.clientY;
+        touchState.moving = false;
+        touchState.item = li;
+        touchState.startIndex = Number(li.dataset.index);
+        touchState.overIndex = -1;
+
+        // 双击（快速点击两次）删除
+        const now = Date.now();
+        const lastTap = li.dataset.lastTap ? Number(li.dataset.lastTap) : 0;
+        const dt = now - lastTap;
+        if (dt > 0 && dt < 300) {
+            event.preventDefault();
+            deleteFileByIndex(Number(li.dataset.index));
+            vibrate();
+            li.dataset.lastTap = '0';
+            touchState.item = null;
+            touchState.startIndex = -1;
+            touchState.overIndex = -1;
+            return;
+        }
+
+        li.dataset.lastTap = String(now);
+    }, { passive: true });
+
+    fileListUl.addEventListener('touchmove', (event) => {
+        if (!touchState.item) return;
+
+        const touch = event.touches[0];
+        const dx = touch.clientX - touchState.startX;
+        const dy = touch.clientY - touchState.startY;
+
+        if (!touchState.moving && (Math.abs(dx) > 10 || Math.abs(dy) > 10)) {
+            touchState.moving = true;
+            touchState.item.classList.add('touch-dragging');
+        }
+
+        if (!touchState.moving) return;
+
+        // 阻止页面滚动/默认行为（需要 passive:false）
+        event.preventDefault();
+
+        const el = document.elementFromPoint(touch.clientX, touch.clientY);
+        const overLi = el ? el.closest('#fileList li') : null;
+
+        clearTouchHints();
+        touchState.item.classList.add('touch-dragging');
+
+        if (overLi && overLi !== touchState.item && fileListUl.contains(overLi)) {
+            overLi.classList.add('touch-over');
+            touchState.overIndex = Number(overLi.dataset.index);
+        } else {
+            touchState.overIndex = -1;
+        }
+    }, { passive: false });
+
+    fileListUl.addEventListener('touchend', (event) => {
+        if (!touchState.item) return;
+
+        if (touchState.moving) {
+            event.preventDefault();
+            const srcIndex = touchState.startIndex;
+            const targetIndex = touchState.overIndex;
+            clearTouchHints();
+
+            if (Number.isInteger(srcIndex) && Number.isInteger(targetIndex) && targetIndex >= 0) {
+                reorderFiles(srcIndex, targetIndex);
+            }
+        }
+
+        touchState.item = null;
+        touchState.startIndex = -1;
+        touchState.overIndex = -1;
+        touchState.moving = false;
+    }, { passive: false });
+
     clearAllButton.addEventListener('click', () => {
         selectedFiles = [];
-        displayFileList();
+        renderFileList();
         updateSelectedFileInfo();
     });
 
-    // Handle merge button click
     mergeButton.addEventListener('click', async () => {
         if (selectedFiles.length === 0) {
             alert('请先选择 TXT 文件！');
             return;
         }
 
-        const mergedFileName = mergedFileNameInput.value.trim() || 'mango';
-        let mergedContent = '';
-        let chapterCount = 1;
+        const mergedFileName = sanitizeFileName(mergedFileNameInput.value);
+        const parts = [];
 
-        for (const file of selectedFiles) {
+        for (let i = 0; i < selectedFiles.length; i++) {
+            const file = selectedFiles[i];
             try {
-                const content = await readFileContent(file);
-                const fileNameWithoutExt = file.name.replace(/\.txt$/, '');
-                mergedContent += `第${chapterCount}章 ${fileNameWithoutExt}\n`;
-                mergedContent += content + "\n\n";
-                chapterCount++;
+                const content = await readFileText(file);
+                const title = file.name.replace(/\.txt$/i, '');
+                parts.push(`第${i + 1}章 ${title}\n`);
+                parts.push(content);
+                parts.push('\n\n');
             } catch (error) {
                 console.error(`Error reading file ${file.name}:`, error);
                 alert(`读取文件 ${file.name} 时出错，请检查控制台。`);
-                return; // Stop merging if any file read fails
+                return;
             }
         }
 
-        // Create a Blob and trigger download
-        const blob = new Blob([mergedContent], { type: 'text/plain;charset=utf-8' });
+        const blob = new Blob(parts, { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -304,16 +286,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url); // Clean up the URL object
+        URL.revokeObjectURL(url);
     });
 
-    // Function to read file content using FileReader
-    function readFileContent(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (event) => resolve(event.target.result);
-            reader.onerror = (error) => reject(error);
-            reader.readAsText(file, 'utf-8');
-        });
-    }
+    renderFileList();
+    updateSelectedFileInfo();
 });

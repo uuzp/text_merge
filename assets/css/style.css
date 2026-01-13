@@ -1,10 +1,35 @@
+:root {
+    --bg: #282c34;
+    --surface: #3a404a;
+    --surface-2: #4b5263;
+    --surface-hover: #5a606b;
+    --surface-active: #606880;
+    --border: #5a606b;
+
+    --text: #abb2bf;
+    --text-muted: #8b939e;
+
+    --accent: #61afef;
+    --accent-hover: #528fcc;
+
+    --danger: #e06c75;
+    --danger-hover: #be5046;
+
+    --success: #98c379;
+    --success-hover: #82b366;
+
+    --radius: 8px;
+    --radius-sm: 4px;
+    --shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
 body {
     font-family: sans-serif;
     line-height: 1.6;
     margin: 0;
     padding: 20px;
-    background-color: #282c34; /* Dark background */
-    color: #abb2bf; /* Light text color */
+    background-color: var(--bg); /* Dark background */
+    color: var(--text); /* Light text color */
     display: flex;
     justify-content: center;
     align-items: flex-start;
@@ -12,17 +37,17 @@ body {
 }
 
 .container {
-    background-color: #3a404a; /* Slightly lighter dark background for container */
+    background-color: var(--surface); /* Slightly lighter dark background for container */
     padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3); /* More prominent shadow */
+    border-radius: var(--radius);
+    box-shadow: var(--shadow); /* More prominent shadow */
     width: 100%;
     max-width: 700px;
     position: relative; /* 添加相对定位，用于 GitHub 按钮定位 */
 }
 
 h1, h2 {
-    color: #61afef; /* Accent color for headings */
+    color: var(--accent); /* Accent color for headings */
     margin: 0;
     text-align: center;
 }
@@ -40,34 +65,13 @@ h1 {
     gap: 10px;
 }
 
-.input-section, .merge-section {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.button {
-    display: inline-block;
-    background-color: #61afef; /* Accent color for buttons */
-    color: #282c34; /* Dark text on button */
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    border: none; /* Remove default border */
-}
-
-.button:hover {
-    background-color: #528fcc; /* Darker accent on hover */
-}
-
 #fileInput {
     display: none; /* 隐藏默认的文件输入框 */
 }
 
 #selectedDir {
     font-style: italic;
-    color: #abb2bf; /* Light text color */
-    margin-left: auto;
+    color: var(--text); /* Light text color */
 }
 
 .file-list-section {
@@ -77,8 +81,8 @@ h1 {
 #fileList {
     list-style: none;
     padding: 0;
-    border: 1px solid #5a606b; /* Darker border */
-    border-radius: 8px;
+    border: 1px solid var(--border); /* Darker border */
+    border-radius: var(--radius);
     max-height: 450px; /* Increased height */
     overflow-y: auto;
     margin: 0;
@@ -86,11 +90,11 @@ h1 {
 }
 
 #fileList li {
-    background-color: #4b5263; /* Darker background for list items */
-    color: #abb2bf; /* Light text color */
+    background-color: var(--surface-2); /* Darker background for list items */
+    color: var(--text); /* Light text color */
     padding: 10px;
     margin-bottom: 5px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     cursor: grab;
     transition: background-color 0.3s ease;
     display: flex; /* Use flexbox for layout */
@@ -105,7 +109,7 @@ h1 {
 }
 
 #fileList li:active {
-    background-color: #606880; /* 长按时背景色变化 */
+    background-color: var(--surface-active); /* 长按时背景色变化 */
     opacity: 0.8; /* 长按时透明度变化 */
 }
 
@@ -118,7 +122,7 @@ h1 {
 }
 
 #fileList li.touch-over {
-    border-top: 2px solid #61afef;
+    border-top: 2px solid var(--accent);
 }
 
 /* 拖拽样式 */
@@ -128,13 +132,13 @@ h1 {
 }
 
 #fileList li.dragover {
-    border-top: 2px solid #61afef;
+    border-top: 2px solid var(--accent);
 }
 
 /* 添加提示文本 */
 .mobile-tip {
     font-size: 0.8em;
-    color: #8b939e;
+    color: var(--text-muted);
     text-align: center;
     margin-top: 10px;
     display: none; /* 默认隐藏 */
@@ -148,7 +152,7 @@ h1 {
 }
 
 #fileList li:hover {
-    background-color: #5a606b; /* Slightly lighter dark on hover */
+    background-color: var(--surface-hover); /* Slightly lighter dark on hover */
 }
 
 #fileList li:hover::after {
@@ -156,12 +160,8 @@ h1 {
     position: absolute;
     right: 10px;
     font-size: 0.85em;
-    color: #e06c75;
+    color: var(--danger);
     opacity: 0.9;
-}
-
-#fileList li.dragging {
-    opacity: 0.5;
 }
 
 #fileList li .file-info {
@@ -170,17 +170,12 @@ h1 {
     align-items: center;
 }
 
-.merge-section label {
-    margin-right: 10px;
-    color: #abb2bf; /* Light text color */
-}
-
 #mergedFileName {
     padding: 8px;
-    border: 1px solid #5a606b; /* Darker border */
-    border-radius: 4px;
-    background-color: #3a404a; /* Dark background */
-    color: #abb2bf; /* Light text */
+    border: 1px solid var(--border); /* Darker border */
+    border-radius: var(--radius-sm);
+    background-color: var(--surface); /* Dark background */
+    color: var(--text); /* Light text */
     flex-grow: 1;
 }
 
@@ -194,39 +189,32 @@ h1 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    color: var(--accent);
 }
 
 .icon-button svg {
-    fill: #61afef;
+    fill: currentColor;
     transition: fill 0.3s ease;
 }
 
-.icon-button:hover svg {
-    fill: #528fcc;
+.icon-button:hover {
+    color: var(--accent-hover);
 }
 
-.file-icon svg {
-    fill: #61afef;
+#clearAllButton {
+    color: var(--danger);
 }
 
-.file-icon:hover svg {
-    fill: #528fcc;
+#clearAllButton:hover {
+    color: var(--danger-hover);
 }
 
-#clearAllButton svg {
-    fill: #e06c75;
+#mergeButton {
+    color: var(--success);
 }
 
-#clearAllButton:hover svg {
-    fill: #be5046;
-}
-
-#mergeButton svg {
-    fill: #98c379;
-}
-
-#mergeButton:hover svg {
-    fill: #82b366;
+#mergeButton:hover {
+    color: var(--success-hover);
 }
 
 .action-section {
@@ -270,10 +258,11 @@ h1 {
     border-radius: 50%;
     padding: 5px;
     background-color: transparent;
+    color: var(--accent);
 }
 
 .github-button svg {
-    fill: #61afef;
+    fill: currentColor;
     transition: fill 0.3s ease;
 }
 
@@ -282,8 +271,8 @@ h1 {
     background-color: rgba(0, 0, 0, 0.2);
 }
 
-.github-button:hover svg {
-    fill: #ffffff;
+.github-button:hover {
+    color: #ffffff;
 }
 
 @media (max-width: 600px) {
