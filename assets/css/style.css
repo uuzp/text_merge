@@ -69,6 +69,20 @@ h1 {
     margin-bottom: 20px;
 }
 
+.app-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.app-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
 .header-section {
     display: flex;
     flex-direction: column;
@@ -82,8 +96,28 @@ h1 {
 }
 
 #selectedDir {
-    font-style: italic;
     color: var(--text); /* Light text color */
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
+.status-badge svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.status-count {
+    min-width: 1ch;
+    font-weight: 600;
 }
 
 .file-list-section {
@@ -148,19 +182,39 @@ h1 {
     border-top: 2px solid var(--accent);
 }
 
-/* 添加提示文本 */
-.mobile-tip {
-    font-size: 0.8em;
-    color: var(--text-muted);
-    text-align: center;
+.gesture-hints {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
     margin-top: 10px;
-    display: none; /* 默认隐藏 */
+}
+
+.gesture-hint {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
+.gesture-hint svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+
+.gesture-hint.danger {
+    color: var(--danger);
 }
 
 /* 仅在移动设备上显示 */
 @media (max-width: 768px) {
-    .mobile-tip {
-        display: block;
+    .gesture-hints {
+        display: flex;
     }
 }
 
@@ -190,6 +244,13 @@ h1 {
     cursor: pointer;
     padding: 4px 10px;
     transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.delete-file-button svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
 }
 
 .delete-file-button:hover,
@@ -262,25 +323,33 @@ h1 {
     flex-grow: 1;
 }
 
-.encoding-container {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text);
-    white-space: nowrap;
+.encoding-panel {
+    position: relative;
 }
 
-.encoding-container span {
-    font-size: 0.9em;
-    color: var(--text-muted);
+.encoding-panel summary {
+    list-style: none;
 }
 
-.encoding-container select {
+.encoding-panel summary::-webkit-details-marker {
+    display: none;
+}
+
+.encoding-panel[open] summary {
+    color: var(--accent-hover);
+}
+
+.encoding-panel select {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
     padding: 8px 10px;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     background-color: var(--surface);
     color: var(--text);
+    box-shadow: var(--shadow);
+    z-index: 20;
 }
 
 .input-logo {
@@ -337,10 +406,9 @@ h1 {
         width: 100%;
     }
 
-    .encoding-container {
+    .encoding-panel {
         order: 2;
-        width: 100%;
-        justify-content: flex-end;
+        margin-left: auto;
     }
 
     .github-button {
