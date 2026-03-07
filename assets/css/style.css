@@ -100,6 +100,7 @@ h1 {
     display: flex; /* Use flexbox for layout */
     align-items: center; /* Vertically align items */
     justify-content: space-between; /* Space out content */
+    gap: 12px;
     position: relative; /* 添加相对定位，用于右键提示 */
     touch-action: none; /* 阻止浏览器的默认触摸行为 */
     -webkit-tap-highlight-color: transparent; /* 移除iOS点击高亮 */
@@ -155,19 +156,36 @@ h1 {
     background-color: var(--surface-hover); /* Slightly lighter dark on hover */
 }
 
-#fileList li:hover::after {
-    content: '右键点击可删除';
-    position: absolute;
-    right: 10px;
-    font-size: 0.85em;
-    color: var(--danger);
-    opacity: 0.9;
-}
-
 #fileList li .file-info {
     flex-grow: 1; /* Allow file info to take up space */
     display: flex;
     align-items: center;
+    min-width: 0;
+}
+
+#fileList li .file-info span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.delete-file-button {
+    flex-shrink: 0;
+    background-color: transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--danger);
+    cursor: pointer;
+    padding: 4px 10px;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.delete-file-button:hover,
+.delete-file-button:focus-visible {
+    background-color: rgba(224, 108, 117, 0.12);
+    border-color: var(--danger);
+    color: #ffffff;
+    outline: none;
 }
 
 #mergedFileName {

@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const isTxtFile = (file) => file && typeof file.name === 'string' && file.name.toLowerCase().endsWith('.txt');
+    const getFileKey = (file) => [file.name, file.size, file.lastModified].join('::');
 
     function updateSelectedFileInfo() {
         selectedDirSpan.textContent = selectedFiles.length > 0
@@ -97,7 +98,16 @@ document.addEventListener('DOMContentLoaded', () => {
             fileNameSpan.textContent = file.name;
             fileInfoDiv.appendChild(fileNameSpan);
 
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
+            deleteButton.className = 'delete-file-button';
+            deleteButton.dataset.action = 'delete';
+            deleteButton.dataset.index = String(index);
+            deleteButton.setAttribute('aria-label', `删除 ${file.name}`);
+            deleteButton.textContent = '删除';
+
             li.appendChild(fileInfoDiv);
+            li.appendChild(deleteButton);
             fileListUl.appendChild(li);
         });
     }
@@ -116,8 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // 文件选择：追加 + 去重（按文件名）
     fileInput.addEventListener('change', (event) => {
         const incoming = Array.from(event.target.files).filter(isTxtFile);
+        const existingKeys = new Set(selectedFiles.map(getFileKey));
         for (const file of incoming) {
-            if (!selectedFiles.some((f) => f.name === file.name)) selectedFiles.push(file);
+            const fileKey = getFileKey(file);
+            if (!existingKeys.has(fileKey)) {
+                selectedFiles.push(file);
+                existingKeys.add(fileKey);
+            }
         }
 
         renderFileList();
@@ -125,18 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
         event.target.value = '';
     });
 
-    // 删除：右键 / 双击（事件委托，避免重复绑定）
-    fileListUl.addEventListener('contextmenu', (event) => {
-        const li = event.target.closest('li');
-        if (!li || !fileListUl.contains(li)) return;
-        event.preventDefault();
-        deleteFileByIndex(Number(li.dataset.index));
-    });
-
-    fileListUl.addEventListener('dblclick', (event) => {
-        const li = event.target.closest('li');
-        if (!li || !fileListUl.contains(li)) return;
-        deleteFileByIndex(Number(li.dataset.index));
+    // 删除按钮（事件委托，避免重复绑定）
+    fileListUl.addEventListener('click', (event) => {
+        const deleteButton = event.target.closest('[data-action="delete"]');
+        if (!deleteButton || !fileListUl.contains(deleteButton)) return;
+        deleteFileByIndex(Number(deleteButton.dataset.index));
         vibrate();
     });
 
@@ -207,6 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const li = event.target.closest('li');
         if (!li || !fileListUl.contains(li)) return;
 
+        if (event.target.closest('[data-action="delete"]')) return;
+
         const touch = event.touches[0];
         touchState.startX = touch.clientX;
         touchState.startY = touch.clientY;
@@ -214,23 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
         touchState.item = li;
         touchState.startIndex = Number(li.dataset.index);
         touchState.overIndex = -1;
-
-        // 双击（快速点击两次）删除
-        const now = Date.now();
-        const lastTap = li.dataset.lastTap ? Number(li.dataset.lastTap) : 0;
-        const dt = now - lastTap;
-        if (dt > 0 && dt < 300) {
-            event.preventDefault();
-            deleteFileByIndex(Number(li.dataset.index));
-            vibrate();
-            li.dataset.lastTap = '0';
-            touchState.item = null;
-            touchState.startIndex = -1;
-            touchState.overIndex = -1;
-            return;
-        }
-
-        li.dataset.lastTap = String(now);
     }, { passive: true });
 
     fileListUl.addEventListener('touchmove', (event) => {
