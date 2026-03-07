@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedDirSpan = $id('selectedDir');
     const fileListUl = $id('fileList');
     const mergedFileNameInput = $id('mergedFileName');
+    const fileEncodingSelect = $id('fileEncoding');
     const mergeButton = $id('mergeButton');
     const clearAllButton = $id('clearAllButton');
 
@@ -36,8 +37,43 @@ document.addEventListener('DOMContentLoaded', () => {
         return safe || fallback;
     }
 
-    async function readFileText(file) {
-        if (typeof file.text === 'function') return await file.text();
+    async function readFileBuffer(file) {
+        if (typeof file.arrayBuffer === 'function') return await file.arrayBuffer();
+        return await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (event) => resolve(event.target.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    function decodeText(buffer, encoding) {
+        return new TextDecoder(encoding, { fatal: true }).decode(buffer);
+    }
+
+    async function readFileText(file, encodingMode) {
+        const buffer = await readFileBuffer(file);
+        const encodings = encodingMode === 'auto'
+            ? ['utf-8', 'gb18030', 'big5']
+            : [encodingMode];
+
+        if (typeof TextDecoder === 'function') {
+            let lastError = null;
+            for (const encoding of encodings) {
+                try {
+                    return decodeText(buffer, encoding);
+                } catch (error) {
+                    lastError = error;
+                }
+            }
+
+            throw lastError ?? new Error('Unsupported text encoding');
+        }
+
+        if (encodingMode !== 'auto' && encodingMode !== 'utf-8') {
+            throw new Error(`Current browser does not support ${encodingMode}`);
+        }
+
         return await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (event) => resolve(event.target.result);
@@ -266,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < selectedFiles.length; i++) {
             const file = selectedFiles[i];
             try {
-                const content = await readFileText(file);
+                const content = await readFileText(file, fileEncodingSelect.value);
                 const title = file.name.replace(/\.txt$/i, '');
                 parts.push(`第${i + 1}章 ${title}\n`);
                 parts.push(content);
