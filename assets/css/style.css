@@ -95,24 +95,6 @@ h1 {
     display: none; /* 隐藏默认的文件输入框 */
 }
 
-#selectedDir {
-    color: var(--text); /* Light text color */
-}
-
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 12px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background-color: rgba(0, 0, 0, 0.12);
-}
-
-.status-count {
-    min-width: 1ch;
-    font-weight: 600;
-}
-
 .file-list-section {
     margin-bottom: 20px;
 }
@@ -284,29 +266,55 @@ h1 {
     position: relative;
 }
 
-.encoding-panel summary {
-    list-style: none;
-}
-
-.encoding-panel summary::-webkit-details-marker {
-    display: none;
-}
-
-.encoding-panel[open] summary {
+.encoding-panel.is-open .icon-button {
     color: var(--accent-hover);
 }
 
-.encoding-panel select {
+.encoding-menu {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    padding: 8px 10px;
+    min-width: 140px;
+    padding: 6px;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     background-color: var(--surface);
-    color: var(--text);
     box-shadow: var(--shadow);
     z-index: 20;
+}
+
+.encoding-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text);
+    text-align: left;
+    cursor: pointer;
+}
+
+.encoding-option:hover,
+.encoding-option:focus-visible {
+    background-color: var(--surface-hover);
+    outline: none;
+}
+
+.encoding-check {
+    width: 1em;
+    color: var(--success);
+    visibility: hidden;
+}
+
+.encoding-option.is-active .encoding-check {
+    visibility: visible;
+}
+
+.encoding-label {
+    flex: 1;
 }
 
 .input-logo {

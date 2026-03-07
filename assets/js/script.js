@@ -5,12 +5,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const fileInput = $id('fileInput');
-    const selectedDirSpan = $id('selectedDir');
     const fileListUl = $id('fileList');
     const mergedFileNameInput = $id('mergedFileName');
-    const fileEncodingSelect = $id('fileEncoding');
+    const encodingButton = $id('encodingButton');
+    const encodingMenu = $id('encodingMenu');
     const mergeButton = $id('mergeButton');
     const clearAllButton = $id('clearAllButton');
+    let currentEncoding = 'auto';
 
     let selectedFiles = [];
 
@@ -22,11 +23,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const getFileKey = (file) => [file.name, file.size, file.lastModified].join('::');
 
     function updateSelectedFileInfo() {
-        const count = selectedFiles.length;
-        const label = count > 0 ? `已选择 ${count} 个 TXT 文件` : '未选择文件';
-        selectedDirSpan.innerHTML = `<span class="status-count">${count}</span>`;
-        selectedDirSpan.setAttribute('aria-label', label);
-        selectedDirSpan.title = label;
+        return;
+    }
+
+    function renderEncodingMenu() {
+        encodingMenu.querySelectorAll('.encoding-option').forEach((option) => {
+            const isActive = option.dataset.encoding === currentEncoding;
+            option.classList.toggle('is-active', isActive);
+            option.setAttribute('aria-checked', isActive ? 'true' : 'false');
+        });
+    }
+
+    function setEncodingMenuOpen(isOpen) {
+        encodingMenu.hidden = !isOpen;
+        encodingButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        encodingButton.parentElement.classList.toggle('is-open', isOpen);
     }
 
     function deleteFileByIndex(index) {
@@ -152,6 +163,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!deleteButton || !fileListUl.contains(deleteButton)) return;
         deleteFileByIndex(Number(deleteButton.dataset.index));
         vibrate();
+    });
+
+    encodingButton.addEventListener('click', () => {
+        setEncodingMenuOpen(encodingMenu.hidden);
+    });
+
+    encodingMenu.addEventListener('click', (event) => {
+        const option = event.target.closest('.encoding-option');
+        if (!option || !encodingMenu.contains(option)) return;
+        currentEncoding = option.dataset.encoding;
+        renderEncodingMenu();
+        setEncodingMenuOpen(false);
+    });
+
+    document.addEventListener('click', (event) => {
+        if (encodingMenu.hidden) return;
+        if (event.target.closest('.encoding-panel')) return;
+        setEncodingMenuOpen(false);
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape' || encodingMenu.hidden) return;
+        setEncodingMenuOpen(false);
+        encodingButton.focus();
     });
 
     // 桌面端拖拽排序（事件委托）
@@ -301,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < selectedFiles.length; i++) {
             const file = selectedFiles[i];
             try {
-                const content = await readFileText(file, fileEncodingSelect.value);
+                const content = await readFileText(file, currentEncoding);
                 const title = file.name.replace(/\.txt$/i, '');
                 parts.push(`第${i + 1}章 ${title}\n`);
                 parts.push(content);
@@ -324,6 +359,8 @@ document.addEventListener('DOMContentLoaded', () => {
         URL.revokeObjectURL(url);
     });
 
+    renderEncodingMenu();
+    setEncodingMenuOpen(false);
     renderFileList();
     updateSelectedFileInfo();
 });
