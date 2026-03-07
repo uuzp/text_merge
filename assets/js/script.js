@@ -22,10 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const isTxtFile = (file) => file && typeof file.name === 'string' && file.name.toLowerCase().endsWith('.txt');
     const getFileKey = (file) => [file.name, file.size, file.lastModified].join('::');
 
-    function updateSelectedFileInfo() {
-        return;
-    }
-
     function renderEncodingMenu() {
         encodingMenu.querySelectorAll('.encoding-option').forEach((option) => {
             const isActive = option.dataset.encoding === currentEncoding;
@@ -44,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!Number.isInteger(index) || index < 0 || index >= selectedFiles.length) return;
         selectedFiles.splice(index, 1);
         renderFileList();
-        updateSelectedFileInfo();
     }
 
     function sanitizeFileName(name) {
@@ -153,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         renderFileList();
-        updateSelectedFileInfo();
         event.target.value = '';
     });
 
@@ -321,7 +315,6 @@ document.addEventListener('DOMContentLoaded', () => {
     clearAllButton.addEventListener('click', () => {
         selectedFiles = [];
         renderFileList();
-        updateSelectedFileInfo();
     });
 
     mergeButton.addEventListener('click', async () => {
@@ -362,5 +355,4 @@ document.addEventListener('DOMContentLoaded', () => {
     renderEncodingMenu();
     setEncodingMenuOpen(false);
     renderFileList();
-    updateSelectedFileInfo();
 });
