@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const $id = (id) => document.getElementById(id);
     const icons = {
-        files: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6 2h8l4 4v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7 1.5V7h3.5L13 3.5ZM8 10h8v1.5H8V10Zm0 4h8v1.5H8V14Z"/></svg>',
         delete: '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-1 6h2v8H8V9Zm6 0h2v8h-2V9Zm-3 0h2v8h-2V9Zm-3 12a2 2 0 0 1-2-2V8h12v11a2 2 0 0 1-2 2H8Z"/></svg>',
     };
 
@@ -25,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateSelectedFileInfo() {
         const count = selectedFiles.length;
         const label = count > 0 ? `已选择 ${count} 个 TXT 文件` : '未选择文件';
-        selectedDirSpan.innerHTML = `${icons.files}<span class="status-count">${count}</span>`;
+        selectedDirSpan.innerHTML = `<span class="status-count">${count}</span>`;
         selectedDirSpan.setAttribute('aria-label', label);
         selectedDirSpan.title = label;
     }
